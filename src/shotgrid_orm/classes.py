@@ -164,7 +164,7 @@ class SGORM:
                                         auth_token=auth_token)
 
                 elif (self.sg_schema_type == SchemaType.SG_SCRIPT):
-                    script_name = self.sg_schema_source.get("script_name")
+                    script_name = self.sg_schema_source.get("script_name") or self.sg_schema_source.get("script")
                     api_key = self.sg_schema_source.get("api_key")
                     sudo_as_login = self.sg_schema_source.get("sudo_as_login")
                     if (script_name and api_key):
@@ -175,13 +175,23 @@ class SGORM:
 
                 elif (self.sg_schema_type == SchemaType.SG_CONNECTION):
                     self.sg = self.sg_schema_source
+        else:
+            print("invalid schema source")
 
         return sg
 
     def read_schema_from_sg(self, sg):
         sg_schema = {}
         if (sg):
-            sg_schema = sg.schema_read()
+            entities = sg.schema_entity_read()
+            for entity_name in sorted(entities):
+                entity = entities.get(entity_name, {})
+                fields = sg.schema_field_read(entity_name)
+                entity["fields"] = fields
+                sg_schema[entity_name] = entity
+        else:
+            print("no sg")
+
         return sg_schema
 
     def create_sg_classes(self):
