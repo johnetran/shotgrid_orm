@@ -9,7 +9,7 @@ from shotgrid_orm import SGORM, SchemaType
 
 ECHO = False
 
-sg_orm = SGORM(sg_schema_type=SchemaType.JSON, sg_schema_source="schema.json", echo=ECHO)
+sg_orm = SGORM(sg_schema_type=SchemaType.JSON_FILE, sg_schema_source="schema.json", echo=ECHO)
 
 print("getting Shot class")
 Shot = sg_orm["Shot"]

@@ -3,6 +3,7 @@ import json
 import copy
 import traceback
 from enum import Enum
+import functools
 
 from sqlalchemy.orm import DeclarativeBase
 from typing import List
@@ -20,6 +21,12 @@ from sqlalchemy import select, bindparam
 from sqlacodegen_v2 import generate_models
 from sqlacodegen_v2 import generators
 
+sgapi = None
+try:
+    import shotgun_api3
+    sgapi = shotgun_api3
+except:
+    pass
 
 from . import sgtypes
 
@@ -27,8 +34,11 @@ class Base(DeclarativeBase):
     pass
 
 class SchemaType(Enum):
-    SG_CONNECTION = 1
-    JSON_FILE = 2
+    JSON_FILE = 1
+    JSON_TEXT = 2
+    SG_USER = 3
+    SG_SCRIPT = 4
+    SG_CONNECTION = 5
 
 TABLE_IGNORE_LIST = [] # ["AppWelcome", "Banner"]
 FIELD_IGNORE_LIST = [] # ["image_source_entity"]
@@ -43,10 +53,20 @@ DEFAULT_OUT_SCRIPT = "sgmodel.py"
 DEFAULT_GENERATOR_CLASS = generators.DeclarativeGenerator
 
 class SGORM:
-    
-    SCHEMA_TYPES = ""
-    def __init__(self, sg_schema_type=DEFAULT_SCHEMA_TYPE, sg_schema_source=DEFAULT_SCHEMA_FILE, ignored_tables=TABLE_IGNORE_LIST, ignored_fields=FIELD_IGNORE_LIST, echo=True):
 
+
+    def has_sg():
+        def decorator_has_sg(func):
+            @functools.wraps(func)
+            def wrapper_decorator_has_sg(*args, **kwargs):
+                if sgapi:
+                    return func(*args, **kwargs)
+                else:
+                    pass
+            return wrapper_decorator_has_sg
+        return decorator_has_sg
+    
+    def __init__(self, sg_schema_type=DEFAULT_SCHEMA_TYPE, sg_schema_source=DEFAULT_SCHEMA_FILE, ignored_tables=TABLE_IGNORE_LIST, ignored_fields=FIELD_IGNORE_LIST, echo=True):
 
         if (not sg_schema_type):
             sg_schema_type = DEFAULT_SCHEMA_TYPE
@@ -66,7 +86,7 @@ class SGORM:
         self.ignored_fields = ignored_fields
 
         # read the SG schema0
-        self.sg_schema = self.read_sg_schema()
+        self.sg_schema, self.sg = self.read_sg_schema()
 
         # create classes
         self.classes, self.tables = self.create_sg_classes()
@@ -104,15 +124,64 @@ class SGORM:
         return session
 
     def read_sg_schema(self):
+        sg = None
         sg_schema = {}
-        if (self.sg_schema_type == SchemaType.JSON_FILE):
-            if (os.path.isfile(self.sg_schema_source)):
-                with open(self.sg_schema_source, "r") as f:
-                    sg_schema = json.load(f)
+        if (self.sg_schema_type in [SchemaType.JSON_FILE, SchemaType.JSON_TEXT]):
+            sg_schema = self.read_schema_from_json()
 
-        elif (self.sg_schema_type == SchemaType.SG_CONNECTION):
-            pass
+        elif (self.sg_schema_type in [SchemaType.SG_USER, SchemaType.SG_SCRIPT, SchemaType.SG_CONNECTION]):
+            sg = self.sg_connect()
+            sg_schema = self.read_schema_from_sg(sg)
 
+        return sg_schema, sg
+
+    def read_schema_from_json(self):
+        sg_schema = {}
+        if (isinstance(self.sg_schema_source, str)):
+            if (self.sg_schema_type == SchemaType.JSON_FILE):
+                if (os.path.isfile(self.sg_schema_source)):
+                    with open(self.sg_schema_source, "r") as f:
+                        sg_schema = json.load(f)
+            elif (self.sg_schema_type == SchemaType.JSON_TEXT):
+                sg_schema = json.loads(self.sg_schema_source)
+
+        return sg_schema
+
+    @has_sg()
+    def sg_connect(self):
+        sg = None
+        if (isinstance(self.sg_schema_source, dict)):
+            url = self.sg_schema_source.get("url")
+            if (url):
+                if (self.sg_schema_type == SchemaType.SG_USER):
+                    login = self.sg_schema_source.get("login")
+                    password = self.sg_schema_source.get("password")
+                    auth_token = self.sg_schema_source.get("auth_token")
+                    if (login and password):
+                        sg = sgapi.Shotgun(url,
+                                        login=login,
+                                        password=password,
+                                        auth_token=auth_token)
+
+                elif (self.sg_schema_type == SchemaType.SG_SCRIPT):
+                    script_name = self.sg_schema_source.get("script_name")
+                    api_key = self.sg_schema_source.get("api_key")
+                    sudo_as_login = self.sg_schema_source.get("sudo_as_login")
+                    if (script_name and api_key):
+                        sg = sgapi.Shotgun(url,
+                                        script_name=script_name,
+                                        api_key=api_key,
+                                        sudo_as_login=sudo_as_login)
+
+                elif (self.sg_schema_type == SchemaType.SG_CONNECTION):
+                    self.sg = self.sg_schema_source
+
+        return sg
+
+    def read_schema_from_sg(self, sg):
+        sg_schema = {}
+        if (sg):
+            sg_schema = sg.schema_read()
         return sg_schema
 
     def create_sg_classes(self):
