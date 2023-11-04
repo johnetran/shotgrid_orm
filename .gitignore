@@ -1,0 +1,6 @@
+tests/schema.json
+*.pyc
+tests/sgmodel.py
+tests/test_model.db
+tests/test.db
+tests/test.txt

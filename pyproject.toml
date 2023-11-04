@@ -1,0 +1,19 @@
+[project]
+name = "shotgrid_orm"
+version = "0.0.1"
+authors = [
+  { name="John Em Tran", email="johnemtran@gmail.com" },
+]
+description = "Shotgrid SQLAlchemy ORM Generator - creates Python classes from a schema."
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/johnemtran/shotgrid_orm"
+"Bug Tracker" = "https://github.com/johnemtran/shotgrid_orm/issues"
+
