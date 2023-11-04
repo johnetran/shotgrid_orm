@@ -27,15 +27,15 @@ class Base(DeclarativeBase):
     pass
 
 class SchemaType(Enum):
-    SG = 1
-    JSON = 2
+    SG_CONNECTION = 1
+    JSON_FILE = 2
 
 TABLE_IGNORE_LIST = [] # ["AppWelcome", "Banner"]
 FIELD_IGNORE_LIST = [] # ["image_source_entity"]
 
 SQLITE_MEMORY_SQA_URL = "sqlite+pysqlite:///:memory:"
 
-DEFAULT_SCHEMA_TYPE = SchemaType.JSON
+DEFAULT_SCHEMA_TYPE = SchemaType.JSON_FILE
 DEFAULT_SCHEMA_FILE = "schema.json"
 DEFAULT_SQA_URL = "sqlite+pysqlite:///:memory:"
 DEFAULT_OUT_SCRIPT = "sgmodel.py"
@@ -105,9 +105,14 @@ class SGORM:
 
     def read_sg_schema(self):
         sg_schema = {}
-        if (self.sg_schema_type == SchemaType.JSON and os.path.isfile(self.sg_schema_source)):
-            with open(self.sg_schema_source, "r") as f:
-                sg_schema = json.load(f)
+        if (self.sg_schema_type == SchemaType.JSON_FILE):
+            if (os.path.isfile(self.sg_schema_source)):
+                with open(self.sg_schema_source, "r") as f:
+                    sg_schema = json.load(f)
+
+        elif (self.sg_schema_type == SchemaType.SG_CONNECTION):
+            pass
+
         return sg_schema
 
     def create_sg_classes(self):
