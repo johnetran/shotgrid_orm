@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+src/shotgrid_orm/__init__.py
+src/shotgrid_orm/sgorm.py
+src/shotgrid_orm/sgtypes.py
+src/shotgrid_orm.egg-info/PKG-INFO
+src/shotgrid_orm.egg-info/SOURCES.txt
+src/shotgrid_orm.egg-info/dependency_links.txt
+src/shotgrid_orm.egg-info/top_level.txt
+tests/test_sgorm.py
