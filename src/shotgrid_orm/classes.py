@@ -151,7 +151,7 @@ class SGORM:
     def sg_connect(self):
         sg = None
         if (isinstance(self.sg_schema_source, dict)):
-            url = self.sg_schema_source.get("url")
+            url = self.sg_schema_source.get("url") or self.sg_schema_source.get("base_url")
             if (url):
                 if (self.sg_schema_type == SchemaType.SG_USER):
                     login = self.sg_schema_source.get("login")
