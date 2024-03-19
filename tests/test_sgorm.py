@@ -25,7 +25,6 @@ sg_orm.create_script("sgmodel2.py")
 
 print("creating engine and session to Sqlite db")
 engine = create_engine("sqlite+pysqlite:///test.db", echo=ECHO)
-session = Session(engine)
 
 print("dropping all tables")
 sg_orm.Base.metadata.drop_all(bind=engine)
@@ -33,6 +32,8 @@ sg_orm.Base.metadata.drop_all(bind=engine)
 print("creating all tables")
 sg_orm.Base.metadata.create_all(engine)
 
+
+session = Session(engine)
 
 print("adding shot objects")
 for id in range(1, 10):
