@@ -22,7 +22,7 @@ print("creating python script")
 sg_orm.create_script("sgmodel.py")
 Shot = sg_orm.classes.get("Shot")
 
-----
+###
 
 from sqlalchemy import create_engine
 
@@ -36,7 +36,7 @@ sg_orm.Base.metadata.drop_all(bind=engine)
 print("creating all tables")
 sg_orm.Base.metadata.create_all(engine)
 
-----
+###
 
 # manipulating records
 
