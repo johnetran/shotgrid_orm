@@ -1,7 +1,13 @@
 # Shotgrid ORM Generator
+
 ## For Autodesk Flow Production Tracking system (formerly Shotgun/Shotgrid - SG)
 
 This tool generates a SQAlchemy ORM for a Shotgrid schema for the purposes of reporting, BI, datawarehousing, etc.  It does not generate foreign keys and primary keys are not auto-increment.  This allows maximum freedom to transfer data from Shotgrid into a target database, retaining its native primary keys (ids).
+
+## Overview:
+![Shotgrid ORM](doc/ShotgridORM.png)
+
+## Usage:
 
 ```python
 import os
