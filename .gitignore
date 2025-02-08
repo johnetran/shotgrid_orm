@@ -5,3 +5,4 @@ tests/test_model.db
 tests/test.db
 tests/test.txt
 tests/sgmodel2.py
+.DS_Store
