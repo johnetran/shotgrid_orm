@@ -14,6 +14,6 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/johnemtran/shotgrid_orm"
-"Bug Tracker" = "https://github.com/johnemtran/shotgrid_orm/issues"
+"Homepage" = "https://github.com/johnetran/shotgrid_orm"
+"Bug Tracker" = "https://github.com/johnetran/shotgrid_orm/issues"
 
