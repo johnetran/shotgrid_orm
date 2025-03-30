@@ -21,6 +21,7 @@ sdist/
 var/
 wheels/
 *.egg-info/
+src/*.egg-info/
 .installed.cfg
 *.egg
 src/shotgrid_orm.egg-info/PKG-INFO
