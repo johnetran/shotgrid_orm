@@ -4,7 +4,7 @@ import json
 import os
 import traceback
 from enum import Enum
-from typing import Optional
+from typing import List, Optional
 
 from sqlacodegen_v2 import generators
 from sqlalchemy import create_engine
@@ -33,8 +33,8 @@ class SchemaType(Enum):
     SG_CONNECTION = 5
 
 
-TABLE_IGNORE_LIST: list[str] = []  # ["AppWelcome", "Banner"]
-FIELD_IGNORE_LIST: list[str] = []  # ["image_source_entity"]
+TABLE_IGNORE_LIST: List[str] = []  # ["AppWelcome", "Banner"]
+FIELD_IGNORE_LIST: List[str] = []  # ["image_source_entity"]
 
 SQLITE_MEMORY_SQA_URL = "sqlite+pysqlite:///:memory:"
 
