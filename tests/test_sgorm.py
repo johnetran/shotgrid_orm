@@ -1,76 +1,91 @@
-import random
+"""Tests for SGORM class and basic ORM functionality."""
 
-from shotgrid_orm import SGORM, SchemaType
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, inspect, select
 from sqlalchemy.orm import Session
 
-ECHO = False
 
-sg_orm = SGORM(sg_schema_type=SchemaType.JSON_FILE, sg_schema_source="schema.json", echo=ECHO)
-
-print("getting Shot class")
-Shot = sg_orm["Shot"]
-
-print("Shot fields:")
-print(dir(Shot))
-
-print("Shot class:")
-print(Shot)
-
-print("creating python script")
-sg_orm.create_script("sgmodel2.py")
-
-print("creating engine and session to Sqlite db")
-engine = create_engine("sqlite+pysqlite:///test.db", echo=ECHO)
-
-print("dropping all tables")
-sg_orm.Base.metadata.drop_all(bind=engine)
-
-print("creating all tables")
-sg_orm.Base.metadata.create_all(engine)
+def test_sgorm_initialization(sg_orm):
+    """Test that SGORM can be initialized from JSON schema."""
+    assert sg_orm is not None
+    assert hasattr(sg_orm, "Base")
 
 
-session = Session(engine)
+def test_get_entity_class(sg_orm):
+    """Test retrieving entity classes from SGORM."""
+    Shot = sg_orm["Shot"]
+    assert Shot is not None
+    assert hasattr(Shot, "__tablename__")
 
-print("adding shot objects")
-for id in range(1, 10):
-    shot = Shot()
-    shot.id = id
-    shot.Asset_shots_id = random.randint(1, 100)
-    session.add(shot)
 
-print("shots in session")
-print(session.new)
+def test_create_script(sg_orm, temp_dir):
+    """Test creating a Python script from schema."""
+    script_path = temp_dir / "sgmodel.py"
+    sg_orm.create_script(str(script_path))
+    assert script_path.exists()
+    assert script_path.stat().st_size > 0
 
-print("flushing session")
-session.flush()
 
-print("getting some shot")
-some_shot = session.get(Shot, 3)
-print(some_shot)
+def test_create_database_tables(sg_orm, test_db_path):
+    """Test creating database tables from schema."""
+    engine = create_engine(f"sqlite+pysqlite:///{test_db_path}", echo=False)
 
-print("commiting shots to DB")
-session.commit()
+    # Create tables
+    sg_orm.Base.metadata.create_all(engine)
 
-print("shots in session after committing")
-print(session.new)
+    # Verify tables were created
+    inspector = inspect(engine)
+    table_names = inspector.get_table_names()
+    assert "Shot" in table_names
+    assert "Asset" in table_names
+    assert "Project" in table_names
 
-print("quering all shots")
-shots = session.execute(select(Shot)).scalars().all()
-for s in shots:
-    print(f"{s.id}: {s.Asset_shots_id}")
 
-print("query a shot using where clause")
-first_shot = session.execute(select(Shot).where(Shot.id == 5)).scalar_one()
-print(f"{first_shot.id}: {first_shot.Asset_shots_id}")
+def test_crud_operations(sg_orm, test_db_path):
+    """Test basic CRUD operations with generated ORM."""
+    engine = create_engine(f"sqlite+pysqlite:///{test_db_path}", echo=False)
+    sg_orm.Base.metadata.create_all(engine)
 
-shots = session.execute(select(Shot)).all()
-for s in shots:
-    print(s)
-    print(s[0].Asset_shots_id)
-    print(s[0].id)
-    # print("shot data")
-    # print(s._asdict()["Shot"].Asset_shots_id)
+    Shot = sg_orm["Shot"]
+    session = Session(engine)
 
-print("closing session")
-session.close()
+    # Create shots
+    shots_to_create = []
+    for shot_id in range(1, 5):
+        shot = Shot()
+        shot.id = shot_id
+        shot.code = f"SHOT_{shot_id:03d}"
+        shots_to_create.append(shot)
+        session.add(shot)
+
+    session.flush()
+
+    # Read - get specific shot
+    retrieved_shot = session.get(Shot, 3)
+    assert retrieved_shot is not None
+    assert retrieved_shot.id == 3
+    assert retrieved_shot.code == "SHOT_003"
+
+    # Commit
+    session.commit()
+
+    # Query all shots
+    all_shots = session.execute(select(Shot)).scalars().all()
+    assert len(all_shots) == 4
+
+    # Query with where clause
+    specific_shot = session.execute(select(Shot).where(Shot.id == 2)).scalar_one()
+    assert specific_shot.id == 2
+    assert specific_shot.code == "SHOT_002"
+
+    session.close()
+
+
+def test_schema_types_support(sg_orm):
+    """Test that schema was loaded successfully."""
+    # Verify SGORM instance was created
+    assert sg_orm is not None
+
+    # Verify we can get entity classes
+    Project = sg_orm["Project"]
+    assert Project is not None
+    assert hasattr(Project, "__tablename__")
