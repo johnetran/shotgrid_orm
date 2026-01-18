@@ -1,0 +1,429 @@
+{
+  "Project": {
+    "name": {
+      "visible": true
+    },
+    "fields": {
+      "id": {
+        "data_type": {
+          "value": "number"
+        },
+        "editable": false,
+        "entity_type": {
+          "value": "Project"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "id"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "code": {
+        "data_type": {
+          "value": "text"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Project"
+        },
+        "mandatory": {
+          "value": true
+        },
+        "name": {
+          "value": "code"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          }
+        },
+        "unique": true,
+        "visible": {
+          "value": true
+        }
+      },
+      "name": {
+        "data_type": {
+          "value": "text"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Project"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "name"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      }
+    }
+  },
+  "Shot": {
+    "name": {
+      "visible": true
+    },
+    "fields": {
+      "id": {
+        "data_type": {
+          "value": "number"
+        },
+        "editable": false,
+        "entity_type": {
+          "value": "Shot"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "id"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "code": {
+        "data_type": {
+          "value": "text"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Shot"
+        },
+        "mandatory": {
+          "value": true
+        },
+        "name": {
+          "value": "code"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "description": {
+        "data_type": {
+          "value": "text"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Shot"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "description"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "project": {
+        "data_type": {
+          "value": "entity"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Shot"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "project"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          },
+          "valid_types": {
+            "value": ["Project"]
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "sg_sequence": {
+        "data_type": {
+          "value": "entity"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Shot"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "sg_sequence"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          },
+          "valid_types": {
+            "value": ["Sequence"]
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      }
+    }
+  },
+  "Asset": {
+    "name": {
+      "visible": true
+    },
+    "fields": {
+      "id": {
+        "data_type": {
+          "value": "number"
+        },
+        "editable": false,
+        "entity_type": {
+          "value": "Asset"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "id"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "code": {
+        "data_type": {
+          "value": "text"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Asset"
+        },
+        "mandatory": {
+          "value": true
+        },
+        "name": {
+          "value": "code"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "description": {
+        "data_type": {
+          "value": "text"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Asset"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "description"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "project": {
+        "data_type": {
+          "value": "entity"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Asset"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "project"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          },
+          "valid_types": {
+            "value": ["Project"]
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "shots": {
+        "data_type": {
+          "value": "multi_entity"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Asset"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "shots"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          },
+          "valid_types": {
+            "value": ["Shot"]
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      }
+    }
+  },
+  "Sequence": {
+    "name": {
+      "visible": true
+    },
+    "fields": {
+      "id": {
+        "data_type": {
+          "value": "number"
+        },
+        "editable": false,
+        "entity_type": {
+          "value": "Sequence"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "id"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "code": {
+        "data_type": {
+          "value": "text"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Sequence"
+        },
+        "mandatory": {
+          "value": true
+        },
+        "name": {
+          "value": "code"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "project": {
+        "data_type": {
+          "value": "entity"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Sequence"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "project"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          },
+          "valid_types": {
+            "value": ["Project"]
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      }
+    }
+  }
+}
