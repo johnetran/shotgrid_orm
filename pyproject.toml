@@ -7,7 +7,7 @@ authors = [
 description = "Shotgrid SQLAlchemy ORM Generator - creates Python classes from a schema."
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 keywords = ["shotgrid", "shotgun", "autodesk", "orm", "sqlalchemy", "flow-production-tracking"]
 dependencies = [
     "shotgun-api3>=3.4.0",
@@ -21,7 +21,6 @@ classifiers = [
     "Topic :: Database",
     "Topic :: Software Development :: Code Generators",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
