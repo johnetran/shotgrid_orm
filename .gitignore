@@ -83,3 +83,9 @@ dmypy.json
 
 # Logs
 *.log
+.github/GITHUB_RELEASE.md
+.github/RELEASE_SUMMARY.md
+.github/TESTPYPI_QUICKSTART.md
+.github/TESTPYPI_UPLOAD.md
+doc/ShotgridORM.key
+doc/ShotgridORM.pptx
