@@ -1,12 +1,41 @@
+# Test data
 tests/schema.json
-*.pyc
 tests/sgmodel.py
 tests/test_model.db
 tests/test.db
 tests/test.txt
 tests/sgmodel2.py
+
+# Python bytecode
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS-specific
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Mise
 mise.local.toml
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Python distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -26,3 +55,31 @@ src/*.egg-info/
 *.egg
 src/shotgrid_orm.egg-info/PKG-INFO
 src/shotgrid_orm.egg-info/SOURCES.txt
+
+# Testing / Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# Logs
+*.log

@@ -1,11 +1,52 @@
 # Shotgrid ORM Generator
 
+![PyPI](https://img.shields.io/pypi/v/shotgrid_orm)
+![Python Version](https://img.shields.io/pypi/pyversions/shotgrid_orm)
+![License](https://img.shields.io/github/license/johnetran/shotgrid_orm)
+[![Tests](https://github.com/johnetran/shotgrid_orm/actions/workflows/test.yml/badge.svg)](https://github.com/johnetran/shotgrid_orm/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/johnetran/shotgrid_orm/branch/main/graph/badge.svg)](https://codecov.io/gh/johnetran/shotgrid_orm)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 ## For Autodesk Flow Production Tracking system (formerly Shotgun/Shotgrid - SG)
 
-This tool generates a SQAlchemy ORM for a Shotgrid schema for the purposes of reporting, BI, datawarehousing, etc.  It does not generate foreign keys and primary keys are not auto-increment.  This allows maximum freedom to transfer data from Shotgrid into a target database, retaining its native primary keys (ids).
+This tool generates a SQLAlchemy ORM for a Shotgrid schema for the purposes of reporting, BI, data warehousing, and analytics. It does not generate foreign key constraints and primary keys are not auto-increment. This allows maximum freedom to transfer data from Shotgrid into a target database, retaining its native primary keys (IDs).
 
-## Overview:
+## Overview
 ![Shotgrid ORM](doc/ShotgridORM.png)
+
+## Installation
+
+Install from PyPI:
+
+```bash
+pip install shotgrid_orm
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/johnetran/shotgrid_orm.git
+cd shotgrid_orm
+pip install -e .
+```
+
+## Requirements
+
+- Python 3.7 or higher
+- SQLAlchemy 2.0.22+
+- shotgun-api3 3.4.0+
+- sqlacodegen-v2 0.1.4+
+- alembic 1.12.1+
+
+## Features
+
+- **Multiple Schema Sources**: Load schemas from JSON files, JSON text, or live Shotgrid connections
+- **Dynamic ORM Generation**: Creates SQLAlchemy 2.0 declarative models with proper type hints
+- **Standalone Script Export**: Generate self-contained Python files with your ORM models
+- **Preserve Shotgrid IDs**: Non-auto-increment primary keys maintain original Shotgrid identifiers
+- **Polymorphic Relationships**: Handles entity and multi-entity fields with automatic _id and _type columns
+- **Alembic Integration**: Built-in support for database migrations
+- **Flexible Design**: No forced foreign key constraints for maximum data transfer flexibility
 
 ## Usage:
 
@@ -107,6 +148,50 @@ print(f"new shot id: {new_shot.id}, code: {new_shot.code}")
 session.commit()
 
 session.close()
-
-
 ```
+
+## Environment Variables
+
+For live Shotgrid connections, set these environment variables:
+
+```bash
+export SG_URL="https://your-studio.shotgunstudio.com"
+export SG_SCRIPT="your_script_name"
+export SG_API_KEY="your_api_key_here"
+```
+
+## Known Limitations
+
+- **Foreign Keys**: ForeignKey constraints are intentionally not generated to allow flexibility in data transfer. You can add them manually if needed.
+- **Entity Relationships**: Entity and multi-entity types are stored as integer IDs and strings rather than full SQLAlchemy relationship() objects.
+- **Complex Types**: Serializable fields (dicts/JSON) and URL fields are stored as strings. Consider JSON serialization for complex use cases.
+- **Read-Only Fields**: Some Shotgrid field types (like image) are read-only and stored as strings.
+
+## Use Cases
+
+- **Data Warehousing**: Extract Shotgrid data into analytical databases (PostgreSQL, MySQL, etc.)
+- **Reporting & BI**: Build custom reports using standard SQL tools
+- **Data Migration**: Transfer Shotgrid data between environments while preserving IDs
+- **Backup & Archival**: Create local copies of Shotgrid data with full schema preservation
+- **Custom Integrations**: Build applications that work with Shotgrid data offline
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Built with [SQLAlchemy](https://www.sqlalchemy.org/)
+- Schema code generation powered by [sqlacodegen-v2](https://github.com/ksindi/sqlacodegen)
+- Shotgrid API integration via [shotgun-api3](https://github.com/shotgunsoftware/python-api)
+
+## Links
+
+- **PyPI**: https://pypi.org/project/shotgrid_orm/
+- **GitHub**: https://github.com/johnetran/shotgrid_orm
+- **Issues**: https://github.com/johnetran/shotgrid_orm/issues
+- **Autodesk Flow Production Tracking**: https://www.autodesk.com/products/flow-production-tracking/

@@ -1,11 +1,8 @@
-
 import random
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-from sqlalchemy import select
-
 from shotgrid_orm import SGORM, SchemaType
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
 
 ECHO = False
 
@@ -64,7 +61,7 @@ for s in shots:
     print(f"{s.id}: {s.Asset_shots_id}")
 
 print("query a shot using where clause")
-first_shot = session.execute(select(Shot).where(Shot.id==5)).scalar_one()
+first_shot = session.execute(select(Shot).where(Shot.id == 5)).scalar_one()
 print(f"{first_shot.id}: {first_shot.Asset_shots_id}")
 
 shots = session.execute(select(Shot)).all()
@@ -77,4 +74,3 @@ for s in shots:
 
 print("closing session")
 session.close()
-
