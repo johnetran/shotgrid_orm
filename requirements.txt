@@ -1,4 +1,4 @@
-shotgun-api3==3.4.0
+shotgun-api3==3.9.2
 sqlacodegen-v2==0.1.4
 SQLAlchemy==2.0.45
 alembic==1.12.1
