@@ -1,11 +1,6 @@
-
-import random
-
+from shotgrid_orm import SGORM, SchemaType
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from sqlalchemy import select
-
-from shotgrid_orm import SGORM, SchemaType
 
 ECHO = False
 
