@@ -1,8 +1,9 @@
 """Tests for script creation from various schema sources."""
 
+# ruff: noqa: I001
 import os
-
 import pytest
+
 from shotgrid_orm import SGORM, SchemaType
 
 

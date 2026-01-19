@@ -1,9 +1,10 @@
 """Pytest configuration and fixtures for shotgrid_orm tests."""
 
+# ruff: noqa: I001
+import pytest
 import shutil
 from pathlib import Path
 
-import pytest
 from shotgrid_orm import SGORM, SchemaType
 
 
