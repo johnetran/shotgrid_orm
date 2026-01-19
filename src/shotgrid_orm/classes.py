@@ -46,21 +46,21 @@ DEFAULT_OUT_SCRIPT = "sgmodel.py"
 DEFAULT_GENERATOR_CLASS = generators.DeclarativeGenerator
 
 
+def has_sg():
+    def decorator_has_sg(func):
+        @functools.wraps(func)
+        def wrapper_decorator_has_sg(*args, **kwargs):
+            if sgapi:
+                return func(*args, **kwargs)
+            else:
+                pass
+
+        return wrapper_decorator_has_sg
+
+    return decorator_has_sg
+
+
 class SGORM:
-
-    @staticmethod
-    def has_sg():
-        def decorator_has_sg(func):
-            @functools.wraps(func)
-            def wrapper_decorator_has_sg(*args, **kwargs):
-                if sgapi:
-                    return func(*args, **kwargs)
-                else:
-                    pass
-
-            return wrapper_decorator_has_sg
-
-        return decorator_has_sg
 
     def __init__(
         self,
