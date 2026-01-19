@@ -7,7 +7,7 @@
 [![codecov](https://codecov.io/gh/johnetran/shotgrid_orm/branch/main/graph/badge.svg)](https://codecov.io/gh/johnetran/shotgrid_orm)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-## For Autodesk Flow Production Tracking system (formerly Shotgun/Shotgrid - SG)
+### For Autodesk Flow Production Tracking system (formerly Shotgun/Shotgrid - SG)
 
 This tool generates a SQLAlchemy ORM for a Shotgrid schema for the purposes of reporting, BI, data warehousing, and analytics. It does not generate foreign key constraints and primary keys are not auto-increment. This allows maximum freedom to transfer data from Shotgrid into a target database, retaining its native primary keys (IDs).
 
@@ -32,11 +32,11 @@ pip install -e .
 
 ## Requirements
 
-- Python 3.7 or higher
-- SQLAlchemy 2.0.22+
-- shotgun-api3 3.4.0+
+- Python 3.8 or higher
+- SQLAlchemy 2.0.45+
+- shotgun-api3 3.9.2+
 - sqlacodegen-v2 0.1.4+
-- alembic 1.12.1+
+- alembic 1.16.5+
 
 ## Features
 
