@@ -6,10 +6,10 @@ import traceback
 from enum import Enum
 from typing import List, Optional
 
+from sqlacodegen_v2 import generators
 import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
-from sqlacodegen_v2 import generators
 
 sgapi = None
 try:
