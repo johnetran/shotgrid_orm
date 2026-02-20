@@ -170,7 +170,9 @@ class SGORM:
                         api_key = self.sg_schema_source.get("api_key")
                         sudo_as_login = self.sg_schema_source.get("sudo_as_login")
                         if script_name and api_key:
-                            sg = sgapi.Shotgun(url, script_name=script_name, api_key=api_key, sudo_as_login=sudo_as_login)
+                            sg = sgapi.Shotgun(
+                                url, script_name=script_name, api_key=api_key, sudo_as_login=sudo_as_login
+                            )
             else:
                 print(f"invalid schema source type: {type(self.sg_schema_source)}")
 
