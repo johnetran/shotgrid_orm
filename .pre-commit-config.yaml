@@ -58,3 +58,13 @@ repos:
     rev: v0.15
     hooks:
       - id: validate-pyproject
+
+  # Run tests
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true
