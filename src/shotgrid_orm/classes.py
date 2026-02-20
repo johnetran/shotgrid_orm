@@ -6,9 +6,10 @@ import traceback
 from enum import Enum
 from typing import List, Optional
 
-from sqlacodegen_v2 import generators
+import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
+from sqlacodegen_v2 import generators
 
 sgapi = None
 try:
@@ -153,27 +154,31 @@ class SGORM:
     @has_sg()
     def sg_connect(self):
         sg = None
-        if isinstance(self.sg_schema_source, dict):
-            url = self.sg_schema_source.get("url") or self.sg_schema_source.get("base_url")
-            if url:
-                if self.sg_schema_type == SchemaType.SG_USER:
-                    login = self.sg_schema_source.get("login")
-                    password = self.sg_schema_source.get("password")
-                    auth_token = self.sg_schema_source.get("auth_token")
-                    if login and password:
-                        sg = sgapi.Shotgun(url, login=login, password=password, auth_token=auth_token)
+        if self.sg_schema_type in [SchemaType.SG_USER, SchemaType.SG_SCRIPT]:
+            if isinstance(self.sg_schema_source, dict):
+                url = self.sg_schema_source.get("url") or self.sg_schema_source.get("base_url")
+                if url:
+                    if self.sg_schema_type == SchemaType.SG_USER:
+                        login = self.sg_schema_source.get("login")
+                        password = self.sg_schema_source.get("password")
+                        auth_token = self.sg_schema_source.get("auth_token")
+                        if login and password:
+                            sg = sgapi.Shotgun(url, login=login, password=password, auth_token=auth_token)
 
-                elif self.sg_schema_type == SchemaType.SG_SCRIPT:
-                    script_name = self.sg_schema_source.get("script_name") or self.sg_schema_source.get("script")
-                    api_key = self.sg_schema_source.get("api_key")
-                    sudo_as_login = self.sg_schema_source.get("sudo_as_login")
-                    if script_name and api_key:
-                        sg = sgapi.Shotgun(url, script_name=script_name, api_key=api_key, sudo_as_login=sudo_as_login)
+                    elif self.sg_schema_type == SchemaType.SG_SCRIPT:
+                        script_name = self.sg_schema_source.get("script_name") or self.sg_schema_source.get("script")
+                        api_key = self.sg_schema_source.get("api_key")
+                        sudo_as_login = self.sg_schema_source.get("sudo_as_login")
+                        if script_name and api_key:
+                            sg = sgapi.Shotgun(url, script_name=script_name, api_key=api_key, sudo_as_login=sudo_as_login)
+            else:
+                print(f"invalid schema source type: {type(self.sg_schema_source)}")
 
-                elif self.sg_schema_type == SchemaType.SG_CONNECTION:
-                    self.sg = self.sg_schema_source
+        elif self.sg_schema_type == SchemaType.SG_CONNECTION:
+            sg = self.sg_schema_source
+
         else:
-            print("invalid schema source")
+            print(f"invalid schema source: {self.sg_schema_type}")
 
         return sg
 
@@ -241,7 +246,7 @@ class SGORM:
                 if field_code == "id":
                     self.info("* id field")
                     t_annotations[field_code] = Mapped[int]
-                    t_namespace[field_code] = mapped_column(primary_key=True, autoincrement=False)
+                    t_namespace[field_code] = mapped_column(sa.BigInteger, primary_key=True, autoincrement=False)
 
                 else:
                     if field_type_value in ["entity", "multi_entity"]:
@@ -261,6 +266,8 @@ class SGORM:
                                     # table points to ONE type of v_table - need foreign key TO v_table
                                     foreign_field_code = f"{v_table}_{field_code}_id"
                                     t_annotations[foreign_field_code] = Mapped[Optional[int]]
+                                    t_namespace[foreign_field_code] = mapped_column(sa.BigInteger)
+
                                     # NOTE: ForeignKey constraints are intentionally not generated to allow maximum
                                     # flexibility when transferring data from Shotgrid to target databases.
                                     # Users can add them manually if desired:
@@ -271,6 +278,8 @@ class SGORM:
                                     # "number": {"hint": Mapped[int], "type": mapped_column(Integer)},
                                     self.info(f"assigning annotation for {field_code}_id")
                                     t_annotations[f"{field_code}_id"] = Mapped[Optional[int]]
+                                    t_namespace[f"{field_code}_id"] = mapped_column(sa.BigInteger)
+
                                     # self.info(f"assigning namespace for {field_code}_id")
                                     # t_namespace[f"{field_code}_id"] = mapped_column(Integer)
                                     self.info(f"assigning annotation for {field_code}_type")
@@ -306,6 +315,7 @@ class SGORM:
                                     ):
                                         # add to
                                         v_annotations[foreign_field_code] = Mapped[Optional[int]]
+                                        t_namespace[foreign_field_code] = mapped_column(sa.BigInteger)
                                         # NOTE: ForeignKey constraints are intentionally not generated to allow maximum
                                         # flexibility when transferring data from Shotgrid to target databases.
                                         # Users can add them manually if desired:
@@ -377,8 +387,8 @@ class SGORM:
         with open(out_script, "w") as f:
             # ensures no auto-increment since we are using SG's id's
             code = code.replace(
-                "id = mapped_column(Integer, primary_key=True)",
-                "id = mapped_column(Integer, primary_key=True, autoincrement=False)",
+                "id = mapped_column(BigInteger, primary_key=True)",
+                "id = mapped_column(BigInteger, primary_key=True, autoincrement=False)",
             )
 
             code += """
