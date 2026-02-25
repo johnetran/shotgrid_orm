@@ -1,7 +1,12 @@
 """Tests for SGORM class and basic ORM functionality."""
 
+import warnings
+
 from sqlalchemy import create_engine, inspect, select
+from sqlalchemy.exc import SAWarning
 from sqlalchemy.orm import Session
+
+from shotgrid_orm import SGORM, SchemaType
 
 
 def test_sgorm_initialization(sg_orm):
@@ -89,3 +94,25 @@ def test_schema_types_support(sg_orm):
     Project = sg_orm["Project"]
     assert Project is not None
     assert hasattr(Project, "__tablename__")
+
+
+def test_multiple_instantiations_no_warning(schema_file):
+    """SGORM must be safe to instantiate multiple times in the same process.
+
+    Each instance should have its own DeclarativeBase so SQLAlchemy never
+    emits SAWarning about duplicate class names, and entity lookups must
+    return valid classes for every instance.
+    """
+    orm1 = SGORM(sg_schema_type=SchemaType.JSON_FILE, sg_schema_source=str(schema_file.absolute()), echo=False)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", SAWarning)
+        orm2 = SGORM(sg_schema_type=SchemaType.JSON_FILE, sg_schema_source=str(schema_file.absolute()), echo=False)
+
+    # Both instances must resolve entity classes successfully.
+    assert orm1["Shot"] is not None
+    assert orm2["Shot"] is not None
+
+    # The two instances must have independent class registries.
+    assert orm1["Shot"] is not orm2["Shot"]
+    assert orm1.Base is not orm2.Base
