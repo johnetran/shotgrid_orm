@@ -30,12 +30,7 @@ def schema_file(example_schema_path, temp_dir):
 
 @pytest.fixture(scope="session")
 def sg_orm(schema_file):
-    """Provide a configured SGORM instance for testing.
-
-    Session-scoped to avoid Base class conflicts when creating
-    multiple SGORM instances with the same entity names.
-    """
-    # Use absolute path to schema file
+    """Provide a configured SGORM instance for testing."""
     return SGORM(sg_schema_type=SchemaType.JSON_FILE, sg_schema_source=str(schema_file.absolute()), echo=False)
 
 
