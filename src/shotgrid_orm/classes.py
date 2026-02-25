@@ -22,10 +22,6 @@ except ImportError:
 from . import sgtypes
 
 
-class Base(DeclarativeBase):
-    pass
-
-
 class SchemaType(Enum):
     JSON_FILE = 1
     JSON_TEXT = 2
@@ -89,6 +85,14 @@ class SGORM:
         self.ignored_tables = ignored_tables
         self.ignored_fields = ignored_fields
 
+        # Each SGORM instance gets its own DeclarativeBase so that multiple
+        # instantiations in the same process don't share the SQLAlchemy class
+        # registry and trigger SAWarning / stale-class lookup failures.
+        class InstanceBase(DeclarativeBase):
+            pass
+
+        self.Base = InstanceBase
+
         # read the SG schema0
         self.sg_schema, self.sg = self.read_sg_schema()
 
@@ -100,12 +104,10 @@ class SGORM:
 
         # if (drop_all):
         #     self.info("dropping all tables")
-        #     Base.metadata.drop_all(bind=self.engine)
+        #     self.Base.metadata.drop_all(bind=self.engine)
 
         # create the ORM
         self.session = self.create_sg_orm()
-
-        self.Base = Base
 
         # self.create_script(out_script)
 
@@ -123,7 +125,7 @@ class SGORM:
             print(message)
 
     def create_sg_orm(self):
-        Base.metadata.create_all(self.engine)
+        self.Base.metadata.create_all(self.engine)
         session = Session(self.engine)
         return session
 
@@ -365,7 +367,7 @@ class SGORM:
 
             try:
                 self.info(f"creating class {node}")
-                TClass = type(node, (Base,), t_namespace)
+                TClass = type(node, (self.Base,), t_namespace)
 
                 self.info(f"adding class {node}")
                 tables[node]["class"] = TClass
@@ -384,7 +386,7 @@ class SGORM:
         if not generator_class:
             generator_class = DEFAULT_GENERATOR_CLASS
 
-        gen = generator_class(Base.metadata, self.engine, [])
+        gen = generator_class(self.Base.metadata, self.engine, [])
         code = gen.generate()
         with open(out_script, "w") as f:
             # ensures no auto-increment since we are using SG's id's
