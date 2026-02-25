@@ -116,3 +116,22 @@ def test_multiple_instantiations_no_warning(schema_file):
     # The two instances must have independent class registries.
     assert orm1["Shot"] is not orm2["Shot"]
     assert orm1.Base is not orm2.Base
+
+
+def test_entity_field_columns(sg_orm):
+    """entity fields produce {field}_id (BigInteger) and {field}_type (String) columns."""
+    Shot = sg_orm["Shot"]
+    assert hasattr(Shot, "project_id")
+    assert hasattr(Shot, "project_type")
+    # Old cross-table name must NOT exist
+    assert not hasattr(Shot, "Project_project_id")
+
+
+def test_multi_entity_field_columns(sg_orm):
+    """multi_entity fields produce {field}_ids (String) and {field}_type (String) columns."""
+    Asset = sg_orm["Asset"]
+    assert hasattr(Asset, "shots_ids")
+    assert hasattr(Asset, "shots_type")
+    # Old cross-table injection must NOT exist on Shot
+    Shot = sg_orm["Shot"]
+    assert not hasattr(Shot, "Asset_shots_id")

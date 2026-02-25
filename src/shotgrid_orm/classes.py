@@ -242,9 +242,6 @@ class SGORM:
                 field_def = fields.get(field)
                 field_type = field_def.get("data_type")
                 field_type_value = field_type.get("value")
-                field_properties = field_def.get("properties")
-                field_valid_types = field_properties.get("valid_types")
-
                 self.info(f"==> {field_code} ({field_type_value})")
 
                 if field_code == "id":
@@ -255,92 +252,16 @@ class SGORM:
                 else:
                     if field_type_value in ["entity", "multi_entity"]:
                         self.info(f"* {field_type_value} field")
-                        if field_valid_types and field_valid_types.get("value"):
-                            v_tables = field_valid_types.get("value")
-
-                            if field_type_value == "entity":
-                                # singe entity
-                                if len(v_tables) == 1:
-
-                                    v_table = v_tables[0]
-                                    if v_table in self.ignored_tables:
-                                        self.info(f"ignoring v_table: {v_table}")
-                                        continue
-
-                                    # table points to ONE type of v_table - need foreign key TO v_table
-                                    foreign_field_code = f"{v_table}_{field_code}_id"
-                                    t_annotations[foreign_field_code] = Mapped[Optional[int]]
-                                    t_namespace[foreign_field_code] = mapped_column(sa.BigInteger)
-
-                                    # NOTE: ForeignKey constraints are intentionally not generated to allow maximum
-                                    # flexibility when transferring data from Shotgrid to target databases.
-                                    # Users can add them manually if desired:
-                                    # t_namespace[foreign_field_code] = mapped_column(ForeignKey(f"{v_tables}.id"))
-
-                                else:
-                                    # table points to MANY types of v_table - need an id and type TO v_table
-                                    # "number": {"hint": Mapped[int], "type": mapped_column(Integer)},
-                                    self.info(f"assigning annotation for {field_code}_id")
-                                    t_annotations[f"{field_code}_id"] = Mapped[Optional[int]]
-                                    t_namespace[f"{field_code}_id"] = mapped_column(sa.BigInteger)
-
-                                    # self.info(f"assigning namespace for {field_code}_id")
-                                    # t_namespace[f"{field_code}_id"] = mapped_column(Integer)
-                                    self.info(f"assigning annotation for {field_code}_type")
-                                    t_annotations[f"{field_code}_type"] = Mapped[Optional[str]]
-                                    self.info(f"assigning namespace for {field_code}_type")
-                                    # t_namespace[f"{field_code}_type"] = mapped_column(String)
-                                    # self.info(f"done assigning field {field_code} to id and type")
-
-                            else:
-                                # multi entity
-                                if len(v_tables) == 1:
-
-                                    v_table = v_tables[0]
-                                    if v_table in self.ignored_tables:
-                                        self.info(f"ignoring v_table: {v_table}")
-                                        continue
-
-                                    if v_table not in tables:
-                                        tables[v_table] = {}
-
-                                    v_namespace = tables[v_table].get("namespace")
-                                    if not isinstance(v_namespace, dict):
-                                        v_namespace = {"__tablename__": v_table}
-
-                                    v_annotations = tables[v_table].get("annotations")
-                                    if not isinstance(v_annotations, dict):
-                                        v_annotations = {}
-
-                                    # table points to ONE type of v_table - need foreign key FROM v_table
-                                    foreign_field_code = f"{table}_{field_code}_id"
-                                    if not v_annotations.get(foreign_field_code) and not t_namespace.get(
-                                        foreign_field_code
-                                    ):
-                                        # add to
-                                        v_annotations[foreign_field_code] = Mapped[Optional[int]]
-                                        t_namespace[foreign_field_code] = mapped_column(sa.BigInteger)
-                                        # NOTE: ForeignKey constraints are intentionally not generated to allow maximum
-                                        # flexibility when transferring data from Shotgrid to target databases.
-                                        # Users can add them manually if desired:
-                                        # v_namespace[foreign_field_code] = mapped_column(ForeignKey(f"{table}.id"))
-
-                                    tables[v_table]["namespace"] = v_namespace
-                                    tables[v_table]["annotations"] = v_annotations
-
-                                # unsupported case? (because of multipe v_tables that we would need to point back to table)
-                                # else:
-                                #     # table points to MANY types of v_table - need an id and type FROM v_table
-                                #     # "number": {"hint": Mapped[int], "type": mapped_column(Integer)},
-                                #     self.info(f"assigning annotation for {field_code}_id")
-                                #     v_annotations[f"{field_code}_id"] = Mapped[int]
-                                #     self.info(f"assigning namespace for {field_code}_id")
-                                #     v_namespace[f"{field_code}_id"] = mapped_column(Integer)
-                                #     self.info(f"assigning annotation for {field_code}_type")
-                                #     v_annotations[f"{field_code}_type"] = Mapped[str]
-                                #     self.info(f"assigning namespace for {field_code}_type")
-                                #     v_namespace[f"{field_code}_type"] = mapped_column(String)
-                                #     self.info(f"done assigning field {field_code} to id and type")
+                        if field_type_value == "entity":
+                            t_annotations[f"{field_code}_id"] = Mapped[Optional[int]]
+                            t_namespace[f"{field_code}_id"] = mapped_column(sa.BigInteger)
+                            t_annotations[f"{field_code}_type"] = Mapped[Optional[str]]
+                            t_namespace[f"{field_code}_type"] = mapped_column(sa.String)
+                        else:  # multi_entity
+                            t_annotations[f"{field_code}_ids"] = Mapped[Optional[str]]
+                            t_namespace[f"{field_code}_ids"] = mapped_column(sa.String)
+                            t_annotations[f"{field_code}_type"] = Mapped[Optional[str]]
+                            t_namespace[f"{field_code}_type"] = mapped_column(sa.String)
 
                     else:
                         self.info(f"* {field_type_value} field")

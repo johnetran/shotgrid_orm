@@ -491,7 +491,7 @@ No, this is a community-developed tool. It uses the official Shotgrid Python API
 
 ### What about multi-entity fields?
 
-Multi-entity fields (one-to-many) create reverse foreign key columns on related tables in the format `{SourceTable}_{field}_id`.
+Multi-entity fields create `{field}_ids` (String) and `{field}_type` (String) columns on the source table, mirroring the same convention as single-entity fields.
 
 ## Environment Variables
 

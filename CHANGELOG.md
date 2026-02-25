@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-02-24
+
+### Added
+- Safe multiple instantiation: each `SGORM` instance now gets its own `DeclarativeBase`, preventing SQLAlchemy `SAWarning` about duplicate class names when creating more than one instance in the same process
+- `pytest` pre-commit hook to catch regressions before commits
+- Regression tests for entity and multi-entity column naming conventions
+
+### Changed
+- **Breaking**: Uniform column generation for `entity` and `multi_entity` fields — all columns are now added to the source table regardless of v_table count:
+  - `entity` fields produce `{field}_id` (BigInteger) and `{field}_type` (String)
+  - `multi_entity` fields produce `{field}_ids` (String) and `{field}_type` (String)
+  - Removes the previous behaviour of injecting a `{v_table}_{field}_id` column for single-v_table entity fields and a cross-table `{SourceTable}_{field}_id` column for multi_entity fields
+- Primary key `id` columns changed from `Integer` to `BigInteger` to match Shotgrid's 64-bit IDs
+- Updated documentation and examples to reflect new column naming convention
+
 ## [0.1.1] - 2026-01-17
 
 ### Changed
