@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-02-25
+
+### Changed
+- **Breaking**: `entity` and `multi_entity` fields now generate columns conditionally based on the number of valid target types:
+  - `entity` with **1 valid type**: generates `{field}_id` with a `ForeignKey` constraint to `{target}.id`; no `{field}_type` column
+  - `entity` with **0 or >1 valid types**: generates `{field}_id` (BigInteger) + `{field}_type` (String) for runtime disambiguation (polymorphic ref)
+  - `multi_entity` with **1 valid type**: generates only `{field}_ids` (String); no `{field}_type` column
+  - `multi_entity` with **0 or >1 valid types**: generates `{field}_ids` (String) + `{field}_type` (String) for disambiguation
+- Missing or null `valid_types` falls back to the multi-type (polymorphic) path as a safe default
+
+### Added
+- FK constraints on single-target `entity` fields, enabling referential integrity in the database
+- New test fields `entity_source` and `task_assignees` in the example schema to cover multi-type entity/multi_entity paths
+- Tests: `test_entity_field_single_valid_type_fk`, `test_entity_field_single_valid_type_no_type_col`, `test_entity_field_multi_valid_type_keeps_type_col`, `test_entity_field_multi_valid_type_no_fk`, `test_multi_entity_field_single_valid_type_no_type_col`, `test_multi_entity_field_multi_valid_type_keeps_type_col`, `test_entity_field_fk_enforced_in_db`
+
 ## [0.2.0] - 2026-02-24
 
 ### Added
