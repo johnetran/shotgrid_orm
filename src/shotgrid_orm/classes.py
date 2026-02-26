@@ -252,16 +252,41 @@ class SGORM:
                 else:
                     if field_type_value in ["entity", "multi_entity"]:
                         self.info(f"* {field_type_value} field")
+                        valid_types = (
+                            field_def.get("properties", {})
+                            .get("valid_types", {})
+                            .get("value")
+                            or []
+                        )
+                        self.info(f"  valid_types: {valid_types}")
+
                         if field_type_value == "entity":
                             t_annotations[f"{field_code}_id"] = Mapped[Optional[int]]
-                            t_namespace[f"{field_code}_id"] = mapped_column(sa.BigInteger)
-                            t_annotations[f"{field_code}_type"] = Mapped[Optional[str]]
-                            t_namespace[f"{field_code}_type"] = mapped_column(sa.String)
+                            if len(valid_types) == 1:
+                                # Single valid type: FK to target table; _type column is redundant.
+                                t_namespace[f"{field_code}_id"] = mapped_column(
+                                    sa.BigInteger, sa.ForeignKey(f"{valid_types[0]}.id")
+                                )
+                                self.info(f"  -> FK to {valid_types[0]}.id, no _type column")
+                            else:
+                                # Zero or multiple valid types: keep _type for runtime disambiguation.
+                                # NOTE: For ORM navigation of polymorphic refs, consider
+                                # SQLAlchemy's association_proxy or per-pair junction tables.
+                                t_namespace[f"{field_code}_id"] = mapped_column(sa.BigInteger)
+                                t_annotations[f"{field_code}_type"] = Mapped[Optional[str]]
+                                t_namespace[f"{field_code}_type"] = mapped_column(sa.String)
+                                self.info(f"  -> polymorphic ({valid_types}), keeping _type column")
+
                         else:  # multi_entity
                             t_annotations[f"{field_code}_ids"] = Mapped[Optional[str]]
                             t_namespace[f"{field_code}_ids"] = mapped_column(sa.String)
-                            t_annotations[f"{field_code}_type"] = Mapped[Optional[str]]
-                            t_namespace[f"{field_code}_type"] = mapped_column(sa.String)
+                            if len(valid_types) != 1:
+                                # Zero or multiple valid types: keep _type for disambiguation.
+                                t_annotations[f"{field_code}_type"] = Mapped[Optional[str]]
+                                t_namespace[f"{field_code}_type"] = mapped_column(sa.String)
+                                self.info(f"  -> polymorphic multi_entity ({valid_types}), keeping _type column")
+                            else:
+                                self.info(f"  -> single-type multi_entity, no _type column")
 
                     else:
                         self.info(f"* {field_type_value} field")

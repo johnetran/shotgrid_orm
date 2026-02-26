@@ -119,19 +119,97 @@ def test_multiple_instantiations_no_warning(schema_file):
 
 
 def test_entity_field_columns(sg_orm):
-    """entity fields produce {field}_id (BigInteger) and {field}_type (String) columns."""
+    """entity fields with a single valid type produce {field}_id (with FK) but NO {field}_type column."""
     Shot = sg_orm["Shot"]
     assert hasattr(Shot, "project_id")
-    assert hasattr(Shot, "project_type")
+    # Single valid type -> no _type column
+    assert not hasattr(Shot, "project_type")
     # Old cross-table name must NOT exist
     assert not hasattr(Shot, "Project_project_id")
 
 
 def test_multi_entity_field_columns(sg_orm):
-    """multi_entity fields produce {field}_ids (String) and {field}_type (String) columns."""
+    """multi_entity fields with a single valid type produce {field}_ids but NO {field}_type column."""
     Asset = sg_orm["Asset"]
     assert hasattr(Asset, "shots_ids")
-    assert hasattr(Asset, "shots_type")
+    # Single valid type -> no _type column
+    assert not hasattr(Asset, "shots_type")
     # Old cross-table injection must NOT exist on Shot
     Shot = sg_orm["Shot"]
     assert not hasattr(Shot, "Asset_shots_id")
+
+
+def test_entity_field_single_valid_type_fk(sg_orm, test_db_path):
+    """entity field with 1 valid type gets a FK constraint to that table."""
+    from sqlalchemy import create_engine, inspect as sa_inspect
+
+    engine = create_engine(f"sqlite+pysqlite:///{test_db_path}", echo=False)
+    sg_orm.Base.metadata.create_all(engine)
+    inspector = sa_inspect(engine)
+
+    fks = inspector.get_foreign_keys("Shot")
+    project_fks = [fk for fk in fks if "project_id" in fk["constrained_columns"]]
+    assert len(project_fks) == 1
+    assert project_fks[0]["referred_table"] == "Project"
+    assert project_fks[0]["referred_columns"] == ["id"]
+
+
+def test_entity_field_single_valid_type_no_type_col(sg_orm):
+    """entity fields with exactly 1 valid type must not have a _type column."""
+    Shot = sg_orm["Shot"]
+    assert not hasattr(Shot, "project_type")
+    assert not hasattr(Shot, "sg_sequence_type")
+
+
+def test_entity_field_multi_valid_type_keeps_type_col(sg_orm):
+    """entity field with >1 valid types gets _id + _type (polymorphic), no FK."""
+    Asset = sg_orm["Asset"]
+    assert hasattr(Asset, "entity_source_id")
+    assert hasattr(Asset, "entity_source_type")
+
+
+def test_entity_field_multi_valid_type_no_fk(sg_orm, test_db_path):
+    """entity field with >1 valid types must NOT carry a FK constraint."""
+    from sqlalchemy import create_engine, inspect as sa_inspect
+
+    engine = create_engine(f"sqlite+pysqlite:///{test_db_path}", echo=False)
+    sg_orm.Base.metadata.create_all(engine)
+    inspector = sa_inspect(engine)
+
+    fks = inspector.get_foreign_keys("Asset")
+    entity_source_fks = [fk for fk in fks if "entity_source_id" in fk["constrained_columns"]]
+    assert len(entity_source_fks) == 0
+
+
+def test_multi_entity_field_single_valid_type_no_type_col(sg_orm):
+    """multi_entity field with 1 valid type has _ids but no _type column."""
+    Asset = sg_orm["Asset"]
+    assert hasattr(Asset, "shots_ids")
+    assert not hasattr(Asset, "shots_type")
+
+
+def test_multi_entity_field_multi_valid_type_keeps_type_col(sg_orm):
+    """multi_entity field with >1 valid types keeps _ids + _type columns."""
+    Asset = sg_orm["Asset"]
+    assert hasattr(Asset, "task_assignees_ids")
+    assert hasattr(Asset, "task_assignees_type")
+
+
+def test_entity_field_fk_enforced_in_db(sg_orm, test_db_path):
+    """FK constraints appear on single-type entity fields but not on multi-type fields."""
+    from sqlalchemy import create_engine, inspect as sa_inspect
+
+    engine = create_engine(f"sqlite+pysqlite:///{test_db_path}", echo=False)
+    sg_orm.Base.metadata.create_all(engine)
+    inspector = sa_inspect(engine)
+
+    # Shot.project_id -> Project.id (single type)
+    shot_fks = inspector.get_foreign_keys("Shot")
+    project_fks = [fk for fk in shot_fks if "project_id" in fk["constrained_columns"]]
+    assert len(project_fks) == 1, "Shot.project_id should have a FK to Project.id"
+    assert project_fks[0]["referred_table"] == "Project"
+
+    # Asset.entity_source_id has NO FK (multi-type)
+    asset_fks = inspector.get_foreign_keys("Asset")
+    entity_source_fks = [fk for fk in asset_fks if "entity_source_id" in fk["constrained_columns"]]
+    assert len(entity_source_fks) == 0, "Asset.entity_source_id must NOT have a FK (polymorphic field)"

@@ -341,6 +341,60 @@
         "visible": {
           "value": true
         }
+      },
+      "entity_source": {
+        "data_type": {
+          "value": "entity"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Asset"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "entity_source"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          },
+          "valid_types": {
+            "value": ["Shot", "Sequence"]
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
+      },
+      "task_assignees": {
+        "data_type": {
+          "value": "multi_entity"
+        },
+        "editable": true,
+        "entity_type": {
+          "value": "Asset"
+        },
+        "mandatory": {
+          "value": false
+        },
+        "name": {
+          "value": "task_assignees"
+        },
+        "properties": {
+          "default_value": {
+            "value": null
+          },
+          "valid_types": {
+            "value": ["HumanUser", "Group"]
+          }
+        },
+        "unique": false,
+        "visible": {
+          "value": true
+        }
       }
     }
   },
