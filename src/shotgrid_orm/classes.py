@@ -286,7 +286,7 @@ class SGORM:
                                 t_namespace[f"{field_code}_type"] = mapped_column(sa.String)
                                 self.info(f"  -> polymorphic multi_entity ({valid_types}), keeping _type column")
                             else:
-                                self.info(f"  -> single-type multi_entity, no _type column")
+                                self.info("  -> single-type multi_entity, no _type column")
 
                     else:
                         self.info(f"* {field_type_value} field")

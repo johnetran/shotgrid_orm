@@ -141,7 +141,8 @@ def test_multi_entity_field_columns(sg_orm):
 
 def test_entity_field_single_valid_type_fk(sg_orm, test_db_path):
     """entity field with 1 valid type gets a FK constraint to that table."""
-    from sqlalchemy import create_engine, inspect as sa_inspect
+    from sqlalchemy import create_engine
+    from sqlalchemy import inspect as sa_inspect
 
     engine = create_engine(f"sqlite+pysqlite:///{test_db_path}", echo=False)
     sg_orm.Base.metadata.create_all(engine)
@@ -170,7 +171,8 @@ def test_entity_field_multi_valid_type_keeps_type_col(sg_orm):
 
 def test_entity_field_multi_valid_type_no_fk(sg_orm, test_db_path):
     """entity field with >1 valid types must NOT carry a FK constraint."""
-    from sqlalchemy import create_engine, inspect as sa_inspect
+    from sqlalchemy import create_engine
+    from sqlalchemy import inspect as sa_inspect
 
     engine = create_engine(f"sqlite+pysqlite:///{test_db_path}", echo=False)
     sg_orm.Base.metadata.create_all(engine)
@@ -197,7 +199,8 @@ def test_multi_entity_field_multi_valid_type_keeps_type_col(sg_orm):
 
 def test_entity_field_fk_enforced_in_db(sg_orm, test_db_path):
     """FK constraints appear on single-type entity fields but not on multi-type fields."""
-    from sqlalchemy import create_engine, inspect as sa_inspect
+    from sqlalchemy import create_engine
+    from sqlalchemy import inspect as sa_inspect
 
     engine = create_engine(f"sqlite+pysqlite:///{test_db_path}", echo=False)
     sg_orm.Base.metadata.create_all(engine)
