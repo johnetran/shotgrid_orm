@@ -252,12 +252,7 @@ class SGORM:
                 else:
                     if field_type_value in ["entity", "multi_entity"]:
                         self.info(f"* {field_type_value} field")
-                        valid_types = (
-                            field_def.get("properties", {})
-                            .get("valid_types", {})
-                            .get("value")
-                            or []
-                        )
+                        valid_types = field_def.get("properties", {}).get("valid_types", {}).get("value") or []
                         self.info(f"  valid_types: {valid_types}")
 
                         if field_type_value == "entity":
