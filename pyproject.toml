@@ -1,6 +1,6 @@
 [project]
 name = "shotgrid_orm"
-version = "0.3.1"
+version = "0.3.2"
 authors = [
   { name="John Em Tran", email="johnemtran@gmail.com" },
 ]

@@ -197,6 +197,66 @@ def test_multi_entity_field_multi_valid_type_keeps_type_col(sg_orm):
     assert hasattr(Asset, "task_assignees_type")
 
 
+def test_dangling_fk_not_generated(tmp_path):
+    """entity field whose single valid_type is absent from the schema must not emit a FK.
+
+    Reproduces: 'Foreign key associated with column ... could not find table ...'
+    which previously crashed metadata.create_all() for internal SG entities like
+    AppWelcome that are referenced by other tables but not present in the schema.
+    """
+    import json
+
+    schema = {
+        "Child": {
+            "name": {"visible": True},
+            "fields": {
+                "id": {
+                    "data_type": {"value": "number"},
+                    "editable": False,
+                    "entity_type": {"value": "Child"},
+                    "mandatory": {"value": False},
+                    "name": {"value": "id"},
+                    "properties": {"default_value": {"value": None}},
+                    "unique": False,
+                    "visible": {"value": True},
+                },
+                "ghost_link": {
+                    # Single valid type that is NOT in this schema
+                    "data_type": {"value": "entity"},
+                    "editable": True,
+                    "entity_type": {"value": "Child"},
+                    "mandatory": {"value": False},
+                    "name": {"value": "ghost_link"},
+                    "properties": {
+                        "default_value": {"value": None},
+                        "valid_types": {"value": ["GhostEntity"]},
+                    },
+                    "unique": False,
+                    "visible": {"value": True},
+                },
+            },
+        }
+    }
+
+    schema_path = tmp_path / "schema.json"
+    schema_path.write_text(json.dumps(schema))
+
+    orm = SGORM(sg_schema_type=SchemaType.JSON_FILE, sg_schema_source=str(schema_path), echo=False)
+
+    # Must not raise when creating tables — no dangling FK
+    engine = create_engine("sqlite+pysqlite:///:memory:", echo=False)
+    orm.Base.metadata.create_all(engine)  # Would raise before the fix
+
+    # The column must exist but without a FK constraint
+    inspector = inspect(engine)
+    fks = inspector.get_foreign_keys("Child")
+    ghost_fks = [fk for fk in fks if "ghost_link_id" in fk["constrained_columns"]]
+    assert len(ghost_fks) == 0, "No FK should be generated for a target table absent from the schema"
+
+    Child = orm["Child"]
+    assert hasattr(Child, "ghost_link_id"), "ghost_link_id column must still be present"
+
+
 def test_entity_field_fk_enforced_in_db(sg_orm, test_db_path):
     """FK constraints appear on single-type entity fields but not on multi-type fields."""
     from sqlalchemy import create_engine

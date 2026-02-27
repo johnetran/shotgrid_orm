@@ -258,11 +258,16 @@ class SGORM:
                         if field_type_value == "entity":
                             t_annotations[f"{field_code}_id"] = Mapped[Optional[int]]
                             if len(valid_types) == 1:
-                                # Single valid type: FK to target table; _type column is redundant.
-                                t_namespace[f"{field_code}_id"] = mapped_column(
-                                    sa.BigInteger, sa.ForeignKey(f"{valid_types[0]}.id")
-                                )
-                                self.info(f"  -> FK to {valid_types[0]}.id, no _type column")
+                                v_table = valid_types[0]
+                                if v_table in self.sg_schema and v_table not in self.ignored_tables:
+                                    # Single valid type: FK to target table; _type column is redundant.
+                                    t_namespace[f"{field_code}_id"] = mapped_column(
+                                        sa.BigInteger, sa.ForeignKey(f"{v_table}.id")
+                                    )
+                                    self.info(f"  -> FK to {v_table}.id, no _type column")
+                                else:
+                                    t_namespace[f"{field_code}_id"] = mapped_column(sa.BigInteger)
+                                    self.info(f"  -> {v_table} not in schema, plain BigInteger (no FK)")
                             else:
                                 # Zero or multiple valid types: keep _type for runtime disambiguation.
                                 # NOTE: For ORM navigation of polymorphic refs, consider
