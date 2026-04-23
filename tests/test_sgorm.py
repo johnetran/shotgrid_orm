@@ -276,3 +276,62 @@ def test_entity_field_fk_enforced_in_db(sg_orm, test_db_path):
     asset_fks = inspector.get_foreign_keys("Asset")
     entity_source_fks = [fk for fk in asset_fks if "entity_source_id" in fk["constrained_columns"]]
     assert len(entity_source_fks) == 0, "Asset.entity_source_id must NOT have a FK (polymorphic field)"
+
+
+def test_duration_field_type(tmp_path):
+    """duration fields are numeric (integer minutes) and persist as Integer columns."""
+    import json
+
+    from sqlalchemy.types import Integer
+
+    schema = {
+        "Task": {
+            "name": {"visible": True},
+            "fields": {
+                "id": {
+                    "data_type": {"value": "number"},
+                    "editable": False,
+                    "entity_type": {"value": "Task"},
+                    "mandatory": {"value": False},
+                    "name": {"value": "id"},
+                    "properties": {"default_value": {"value": None}},
+                    "unique": False,
+                    "visible": {"value": True},
+                },
+                "duration": {
+                    "data_type": {"value": "duration"},
+                    "editable": True,
+                    "entity_type": {"value": "Task"},
+                    "mandatory": {"value": False},
+                    "name": {"value": "duration"},
+                    "properties": {"default_value": {"value": None}},
+                    "unique": False,
+                    "visible": {"value": True},
+                },
+            },
+        }
+    }
+
+    schema_path = tmp_path / "schema.json"
+    schema_path.write_text(json.dumps(schema))
+
+    orm = SGORM(sg_schema_type=SchemaType.JSON_FILE, sg_schema_source=str(schema_path), echo=False)
+    Task = orm["Task"]
+    assert Task is not None
+    assert hasattr(Task, "duration")
+
+    engine = create_engine("sqlite+pysqlite:///:memory:", echo=False)
+    orm.Base.metadata.create_all(engine)
+
+    # Duration column must map to an integer type.
+    duration_col = next(c for c in Task.__table__.columns if c.name == "duration")
+    assert isinstance(duration_col.type, Integer)
+
+    # Round-trip a value to ensure persistence works.
+    session = Session(engine)
+    task = Task(id=1, duration=120)
+    session.add(task)
+    session.commit()
+    retrieved = session.get(Task, 1)
+    assert retrieved.duration == 120
+    session.close()
