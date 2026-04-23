@@ -36,6 +36,7 @@ sg_types = {
     "currency": {"hint": Mapped[float], "type": mapped_column(Float)},
     "date": {"hint": Mapped[str], "type": mapped_column(String)},
     "date_time": {"hint": Mapped[datetime], "type": mapped_column(DateTime)},
+    "duration": {"hint": Mapped[int], "type": mapped_column(Integer)},
     # NOTE: Entity types are stored as integer IDs. Relationship mappings are handled
     # in classes.py by creating _id and _type fields for polymorphic associations.
     # Full SQLAlchemy relationship() support could be added in future versions.
@@ -71,6 +72,7 @@ sg_types_optional = {
     "currency": {"hint": Mapped[Optional[float]], "type": mapped_column(Float)},
     "date": {"hint": Mapped[Optional[str]], "type": mapped_column(String)},
     "date_time": {"hint": Mapped[Optional[datetime]], "type": mapped_column(DateTime)},
+    "duration": {"hint": Mapped[Optional[int]], "type": mapped_column(Integer)},
     # NOTE: Entity types are stored as integer IDs. Relationship mappings are handled
     # in classes.py by creating _id and _type fields for polymorphic associations.
     "entity": {"hint": Mapped[Optional[int]], "type": mapped_column(Integer)},
