@@ -8,7 +8,7 @@
 
 ### For Autodesk Flow Production Tracking system (formerly Shotgun/Shotgrid - SG)
 
-This tool generates a SQLAlchemy ORM for a Shotgrid schema for the purposes of reporting, BI, data warehousing, and analytics. It does not generate foreign key constraints and primary keys are not auto-increment. This allows maximum freedom to transfer data from Shotgrid into a target database, retaining its native primary keys (IDs).
+Created during downtime from work, this tool generates a SQLAlchemy ORM for a Shotgrid schema for the purposes of reporting, BI, data warehousing, and analytics. It does not generate foreign key constraints and primary keys are not auto-increment. This allows maximum freedom to transfer data from Shotgrid into a target database, retaining its native primary keys (IDs).
 
 ## Overview
 ![Shotgrid ORM](doc/ShotgridORM.png)
